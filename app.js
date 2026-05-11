@@ -48,8 +48,14 @@ function extendRangeToEvents(range, dates, fmt) {
     .filter(v => v !== undefined)
     .sort((a,b)=>a-b);
   let { start, end } = range;
-  for (const i of eIdx) if (i < start) start = i;
-  for (let i = eIdx.length - 1; i >= 0; i--) if (eIdx[i] > end) { end = eIdx[i]; break; }
+
+  // トリム結果の「直前」「直後」のイベントのみ範囲に含める
+  const prev = eIdx.filter(i => i < start).pop();
+  const next = eIdx.find(i => i > end);
+
+  if (prev !== undefined) start = prev;
+  if (next !== undefined) end = next;
+
   return { start, end };
 }
 
