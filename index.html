@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>デッキ使用率デモ</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 16px; }
+    .controls { display:flex; gap:12px; flex-wrap: wrap; align-items: end; margin-bottom: 12px; }
+    .field { display:flex; flex-direction: column; gap:4px; }
+    select { min-width: 260px; min-height: 160px; }
+    .chip { display:inline-block; padding:2px 6px; border-radius: 8px; color:#fff; font-size:11px; margin-right: 4px; }
+    .added { background:#2f855a; }
+    .removed { background:#dd6b20; }
+    .adjusted { background:#2b6cb0; }
+    .chart-wrap { position: relative; height: 360px; }
+    .event-row { position: relative; height: 34px; margin-top: 4px; }
+    .event-label { position:absolute; transform:translateX(-50%); font-size: 10px; padding:2px 4px; border-radius: 4px; border:1px solid; white-space: nowrap; cursor: default; }
+    .event-label.added { background:#e6fffa; color:#1f6f5d; border-color:#81e6d9; }
+    .event-label.removed { background:#fffaf0; color:#9c4221; border-color:#f6ad55; }
+    .event-label.adjusted { background:#ebf8ff; color:#2c5282; border-color:#90cdf4; }
+    .meta { margin: 8px 0; color:#555; font-size: 13px; }
+  </style>
+</head>
+<body>
+  <h1>デッキ使用率デモ</h1>
+  <div class="controls">
+    <div class="field">
+      <label>フォーマット</label>
+      <div>
+        <label><input type="radio" name="fmt" value="ND" checked> ND</label>
+        <label><input type="radio" name="fmt" value="AD"> AD</label>
+      </div>
+    </div>
+    <div class="field">
+      <label>デッキ選択（最大5）</label>
+      <select id="deckSelect" multiple></select>
+    </div>
+  </div>
+  <div class="meta" id="meta"></div>
+  <div class="chart-wrap"><canvas id="chart"></canvas></div>
+  <div class="event-row" id="eventRow"></div>
+  <script src="./app.js"></script>
+</body>
+</html>
