@@ -3,24 +3,33 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>デッキ使用率デモ</title>
+  <title>デッキ使用率推移グラフ</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
   <style>
-    body { font-family: system-ui, sans-serif; margin: 16px; }
-    .controls { display:flex; gap:12px; flex-wrap: wrap; align-items: end; margin-bottom: 12px; }
-    .field { display:flex; flex-direction: column; gap:4px; min-width: 180px; }
-    select { min-width: 180px; }
+    * { box-sizing: border-box; }
+    body { font-family: system-ui, sans-serif; margin: 12px; overflow-x: hidden; }
+    .controls { display:flex; gap:10px; flex-wrap: wrap; align-items: end; margin-bottom: 12px; }
+    .field { display:flex; flex-direction: column; gap:4px; min-width: 168px; }
+    select { min-width: 168px; max-width: 100%; }
     .chart-wrap { position: relative; height: 360px; }
-    .event-row { position: relative; height: 34px; margin-top: 4px; }
-    .event-label { position:absolute; transform:translateX(-50%); font-size: 10px; padding:2px 4px; border-radius: 4px; border:1px solid; white-space: nowrap; cursor: default; }
+    .event-row { position: relative; min-height: 34px; margin-top: 4px; }
+    .event-label { position:absolute; transform:translateX(-50%); max-width: 86px; overflow:hidden; text-overflow:ellipsis; font-size: 10px; line-height: 1.2; padding:2px 4px; border-radius: 4px; border:1px solid; white-space: nowrap; cursor: default; }
     .event-label.added { background:#e6fffa; color:#1f6f5d; border-color:#81e6d9; }
     .event-label.removed { background:#fffaf0; color:#9c4221; border-color:#f6ad55; }
     .event-label.adjusted { background:#ebf8ff; color:#2c5282; border-color:#90cdf4; }
+    .event-tooltip { position: fixed; z-index: 20; max-width: min(360px, calc(100vw - 20px)); padding: 6px 8px; border-radius: 4px; background: #1a202c; color: #fff; font-size: 12px; line-height: 1.45; white-space: pre-line; opacity: 0; pointer-events: none; transform: translateY(2px); transition: opacity 0.04s ease, transform 0.04s ease; }
+    .event-tooltip.visible { opacity: 1; transform: translateY(0); }
+    .description { margin: 0 0 14px; padding-left: 1.2em; color: #444; font-size: 13px; line-height: 1.6; }
     .meta { margin: 8px 0; color:#555; font-size: 13px; }
   </style>
 </head>
 <body>
-  <h1>デッキ使用率デモ</h1>
+  <h1>デッキ使用率推移グラフ</h1>
+  <ul class="description">
+    <li>デッキ名を選択すると、そのデッキの使用率グラフが表示されます。5つまで同時に選択できます。複数選択した場合、各デッキの使用率の合計がグラフに表示されます。</li>
+    <li>期間は2022/4/1 ~ 2025/2/28（BEANS様が対戦数テーブルを公開している期間）です。</li>
+    <li>新弾直後など、デッキ名がBEANS様の集計対象になっていない期間は、実際にデッキが使われていても使用率0%となる場合があります。</li>
+  </ul>
   <div class="controls">
     <div class="field">
       <label>フォーマット</label>

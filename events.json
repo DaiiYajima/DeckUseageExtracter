@@ -157,13 +157,6 @@
     },
     {
       "date": "2023-03-23",
-      "label": "バランス調整",
-      "format": "BOTH",
-      "type": "adjusted",
-      "description": "【カード能力変更】魔光大帝ネロ・グリフィス・ルドルフ"
-    },
-    {
-      "date": "2023-03-23",
       "label": "DMPP-19",
       "format": "BOTH",
       "type": "added",
@@ -175,6 +168,13 @@
       "format": "ND",
       "type": "removed",
       "description": "超次元開放 -PSYCHIC SHOCK-"
+    },
+    {
+      "date": "2023-03-23",
+      "label": "バランス調整",
+      "format": "BOTH",
+      "type": "adjusted",
+      "description": "【カード能力変更】魔光大帝ネロ・グリフィス・ルドルフ"
     },
     {
       "date": "2023-05-25",
