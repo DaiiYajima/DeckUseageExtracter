@@ -1,0 +1,509 @@
+{
+  "version": "1.0.0",
+  "events": [
+    {
+      "date": "2022-04-26",
+      "label": "バランス調整",
+      "format": "BOTH",
+      "type": "adjusted",
+      "description": "【カード能力変更】ボルシャック・ルピア / 死神盗掘男"
+    },
+    {
+      "date": "2022-05-26",
+      "label": "DMPP-14",
+      "format": "BOTH",
+      "type": "added",
+      "description": "爆竜覚醒録 -DIABOLIC CRISIS-"
+    },
+    {
+      "date": "2022-05-26",
+      "label": "DMPP-8",
+      "format": "ND",
+      "type": "removed",
+      "description": "極神創世譚 -VIOLENCE FUSION-"
+    },
+    {
+      "date": "2022-05-26",
+      "label": "DMPP-8EX",
+      "format": "ND",
+      "type": "removed",
+      "description": "覇竜咆哮 -TRIBAL EXTREME-"
+    },
+    {
+      "date": "2022-06-23",
+      "label": "バランス調整",
+      "format": "BOTH",
+      "type": "adjusted",
+      "description": "【カード能力変更】クリスタル・ツヴァイランサー / 開眼者シンラン / 腐毒の幻ハンゾウ"
+    },
+    {
+      "date": "2022-07-28",
+      "label": "バランス調整",
+      "format": "BOTH",
+      "type": "adjusted",
+      "description": "【カード能力変更】百発人形マグナム / 邪眼銃士ディミトリ卿 / レッピ・アイニー"
+    },
+    {
+      "date": "2022-07-29",
+      "label": "DMPP-15",
+      "format": "BOTH",
+      "type": "added",
+      "description": "超覚醒嵐舞 -FIRESOULS DUELIST-"
+    },
+    {
+      "date": "2022-07-29",
+      "label": "DMPP-9",
+      "format": "ND",
+      "type": "removed",
+      "description": "武者聖戦伝 -ARCADIA OVERDRIVE-"
+    },
+    {
+      "date": "2022-07-29",
+      "label": "DMPP-9EX",
+      "format": "ND",
+      "type": "removed",
+      "description": "聖竜凱旋 -REBORN OF THE SURVIVOR-"
+    },
+    {
+      "date": "2022-08-25",
+      "label": "バランス調整",
+      "format": "BOTH",
+      "type": "adjusted",
+      "description": "【カード能力変更】時空の支配者ディアボロス Z"
+    },
+    {
+      "date": "2022-09-29",
+      "label": "DMPP-16",
+      "format": "BOTH",
+      "type": "added",
+      "description": "ファースト・オブ・ビクトリー -激竜王の目覚め-"
+    },
+    {
+      "date": "2022-09-29",
+      "label": "DMPP-10",
+      "format": "ND",
+      "type": "removed",
+      "description": "戦国武闘会 -SAMURAI X KNIGHT-"
+    },
+    {
+      "date": "2022-09-29",
+      "label": "DMPP-10EX",
+      "format": "ND",
+      "type": "removed",
+      "description": "魔帝剣征 -BATTLE OF GLORY-"
+    },
+    {
+      "date": "2022-10-27",
+      "label": "バランス調整",
+      "format": "BOTH",
+      "type": "adjusted",
+      "description": "【DP殿堂入り】エンペラー・キリコ / 魔光蟲ヴィルジニア卿\n【カード能力変更】ダイヤモンド・カスケード"
+    },
+    {
+      "date": "2022-11-24",
+      "label": "DMPP-17",
+      "format": "BOTH",
+      "type": "added",
+      "description": "ライジング・アライズ -希望の王女-"
+    },
+    {
+      "date": "2022-11-24",
+      "label": "DMPP-11",
+      "format": "ND",
+      "type": "removed",
+      "description": "戦極大決戦 -CLIMAX GALAXY-"
+    },
+    {
+      "date": "2022-12-16",
+      "label": "DMPB-03",
+      "format": "BOTH",
+      "type": "added",
+      "description": "LEGEND OF PLAY'S 2023"
+    },
+    {
+      "date": "2022-12-16",
+      "label": "DMPB-02",
+      "format": "ND",
+      "type": "removed",
+      "description": "LEGEND OF PLAY'S 2022"
+    },
+    {
+      "date": "2022-12-16",
+      "label": "バランス調整",
+      "format": "BOTH",
+      "type": "adjusted",
+      "description": "【DP殿堂解除】魂と記憶の盾\n【カード能力変更】龍仙ロマネスク / 超次元リバイヴ・ホール / 黙示賢者ソルハバキ / ハッスル・キャッスル / ゴースト・タッチ / 汽車男 / 封魔ゴーゴンシャック / 解体人形ジェニー"
+    },
+    {
+      "date": "2023-01-26",
+      "label": "DMPP-18",
+      "format": "BOTH",
+      "type": "added",
+      "description": "ゴールデン・ビクトリー -天頂開戦-"
+    },
+    {
+      "date": "2023-01-26",
+      "label": "DMPP-12",
+      "format": "ND",
+      "type": "removed",
+      "description": "太陽の神歌 -NEXT EVOLUTION-"
+    },
+    {
+      "date": "2023-01-26",
+      "label": "バランス調整",
+      "format": "BOTH",
+      "type": "adjusted",
+      "description": "【カード能力変更】若頭 鬼流院 刃"
+    },
+    {
+      "date": "2023-03-23",
+      "label": "バランス調整",
+      "format": "BOTH",
+      "type": "adjusted",
+      "description": "【カード能力変更】魔光大帝ネロ・グリフィス・ルドルフ"
+    },
+    {
+      "date": "2023-03-23",
+      "label": "DMPP-19",
+      "format": "BOTH",
+      "type": "added",
+      "description": "グレイト・ディスティニー -希望の双子-"
+    },
+    {
+      "date": "2023-03-23",
+      "label": "DMPP-13",
+      "format": "ND",
+      "type": "removed",
+      "description": "超次元開放 -PSYCHIC SHOCK-"
+    },
+    {
+      "date": "2023-05-25",
+      "label": "DMPP-20",
+      "format": "BOTH",
+      "type": "added",
+      "description": "レイジ・オブ・インフィニティ -神人類光臨-"
+    },
+    {
+      "date": "2023-05-25",
+      "label": "DMPP-14",
+      "format": "ND",
+      "type": "removed",
+      "description": "爆竜覚醒録 -DIABOLIC CRISIS-"
+    },
+    {
+      "date": "2023-05-25",
+      "label": "バランス調整",
+      "format": "BOTH",
+      "type": "adjusted",
+      "description": "【DP殿堂解除】ストリーミング・ビジョン\n【カード能力変更】鎧亜の咆哮キリュー・ジルヴェス / 黒神龍バズラデューダ"
+    },
+    {
+      "date": "2023-06-28",
+      "label": "バランス調整",
+      "format": "BOTH",
+      "type": "adjusted",
+      "description": "【DP殿堂入り】超次元ホワイトグリーン・ホール\n【カード能力変更】お目覚めメイ様 / 魔龍バベルギヌス / 黒神龍ゾルヴェール / 天真妖精オチャッピィ / 提督のマントラ ヴォスラディッシュ / 死神人形ベルベル"
+    },
+    {
+      "date": "2023-07-26",
+      "label": "DMPP-21",
+      "format": "BOTH",
+      "type": "added",
+      "description": "ジ・オーバー・ロワイヤル -無法神聖紀-"
+    },
+    {
+      "date": "2023-07-26",
+      "label": "DMPP-15",
+      "format": "ND",
+      "type": "removed",
+      "description": "超覚醒嵐舞 -FIRESOULS DUELIST-"
+    },
+    {
+      "date": "2023-07-26",
+      "label": "バランス調整",
+      "format": "BOTH",
+      "type": "adjusted",
+      "description": "【DP殿堂解除】竜極神\n【カード能力変更】超閃機 ジャバジャック / 超閃機 ヴィルヴィスヴィード / アクア少年 ジャバ・キッド / アクア闘士 サンダーボルト / 黄泉秘伝トリプル・ZERO"
+    },
+    {
+      "date": "2023-08-24",
+      "label": "バランス調整",
+      "format": "AD",
+      "type": "adjusted",
+      "description": "【AD殿堂入り】龍仙ロマネスク\n【カード能力変更】逆転王女プリン"
+    },
+    {
+      "date": "2023-09-28",
+      "label": "DMPP-22",
+      "format": "BOTH",
+      "type": "added",
+      "description": "龍解紅蓮伝 -BEGINNING SAGA-"
+    },
+    {
+      "date": "2023-09-28",
+      "label": "DMPP-16",
+      "format": "ND",
+      "type": "removed",
+      "description": "ファースト・オブ・ビクトリー -激竜王の目覚め-"
+    },
+    {
+      "date": "2023-10-26",
+      "label": "バランス調整",
+      "format": "BOTH",
+      "type": "adjusted",
+      "description": "【カード能力変更】母なる大地 / 護英雄 シール・ド・レイユ / 理英雄 デカルトQ / 凶英雄 ツミトバツ / 撃英雄 ガイゲンスイ / 牙英雄 オトマ=クット / 龍素記号Sr スペルサイクリカ"
+    },
+    {
+      "date": "2023-11-22",
+      "label": "DMPP-23",
+      "format": "BOTH",
+      "type": "added",
+      "description": "双剣王凱旋 -DRAGHEART SOLUTION-"
+    },
+    {
+      "date": "2023-11-22",
+      "label": "DMPP-17",
+      "format": "ND",
+      "type": "removed",
+      "description": "ライジング・アライズ -希望の王女-"
+    },
+    {
+      "date": "2023-11-22",
+      "label": "バランス調整",
+      "format": "BOTH",
+      "type": "adjusted",
+      "description": "【カード能力変更】滅殺刃 ゴー・トゥ・ヘル"
+    },
+    {
+      "date": "2023-12-14",
+      "label": "DMPB-04",
+      "format": "BOTH",
+      "type": "added",
+      "description": "LEGEND OF PLAY'S 2024"
+    },
+    {
+      "date": "2023-12-14",
+      "label": "DMPB-05",
+      "format": "ND",
+      "type": "added",
+      "description": "デッキビルダー2024 アークセット"
+    },
+    {
+      "date": "2023-12-14",
+      "label": "DMPB-03",
+      "format": "ND",
+      "type": "removed",
+      "description": "LEGEND OF PLAY'S 2023"
+    },
+    {
+      "date": "2023-12-14",
+      "label": "バランス調整",
+      "format": "BOTH",
+      "type": "adjusted",
+      "description": "【カード能力変更】連珠の精霊アガピトス / インフェルノ・サイン"
+    },
+    {
+      "date": "2024-01-25",
+      "label": "DMPP-24",
+      "format": "BOTH",
+      "type": "added",
+      "description": "龍魂超決戦 -NEXTREME SAGA-"
+    },
+    {
+      "date": "2024-01-25",
+      "label": "DMPP-18",
+      "format": "ND",
+      "type": "removed",
+      "description": "ゴールデン・ビクトリー -天頂開戦-"
+    },
+    {
+      "date": "2024-01-25",
+      "label": "バランス調整",
+      "format": "BOTH",
+      "type": "adjusted",
+      "description": "【カード能力変更】天真妖精オチャッピィ / デュアルショック・ドラゴン / アクア・アドバイザー"
+    },
+    {
+      "date": "2024-02-22",
+      "label": "バランス調整",
+      "format": "BOTH",
+      "type": "adjusted",
+      "description": "【カード能力変更】怒英雄 ガイムソウ / 聖英雄 ゴール・ド・レイユ"
+    },
+    {
+      "date": "2024-03-28",
+      "label": "DMPP-25",
+      "format": "BOTH",
+      "type": "added",
+      "description": "轟炎革命 -LEGEND EVOLUTION-"
+    },
+    {
+      "date": "2024-03-28",
+      "label": "DMPP-19",
+      "format": "ND",
+      "type": "removed",
+      "description": "グレイト・ディスティニー -希望の双子-"
+    },
+    {
+      "date": "2024-03-28",
+      "label": "バランス調整",
+      "format": "BOTH",
+      "type": "adjusted",
+      "description": "【カード能力変更】逆転のオーロラ"
+    },
+    {
+      "date": "2024-04-25",
+      "label": "バランス調整",
+      "format": "BOTH",
+      "type": "adjusted",
+      "description": "【DP殿堂入り】インフェルノ・サイン"
+    },
+    {
+      "date": "2024-05-23",
+      "label": "DMPP-26",
+      "format": "BOTH",
+      "type": "added",
+      "description": "天魔命導 -MIRACLE REVOLUTION-"
+    },
+    {
+      "date": "2024-05-23",
+      "label": "DMPP-20",
+      "format": "ND",
+      "type": "removed",
+      "description": "レイジ・オブ・インフィニティ -神人類光臨-"
+    },
+    {
+      "date": "2024-05-23",
+      "label": "バランス調整",
+      "format": "BOTH",
+      "type": "adjusted",
+      "description": "【カード能力変更】幻想妖精カチュア / エヴォル・メラッチ / スナイプ・モスキート / パラダイス・アロマ"
+    },
+    {
+      "date": "2024-06-27",
+      "label": "バランス調整",
+      "format": "BOTH",
+      "type": "adjusted",
+      "description": "【カード能力変更】真聖教会 エンドレス・ヘブン"
+    },
+    {
+      "date": "2024-07-25",
+      "label": "DMPX-01",
+      "format": "BOTH",
+      "type": "added",
+      "description": "PLAY'S CHRONICLE PACK"
+    },
+    {
+      "date": "2024-07-25",
+      "label": "バランス調整",
+      "format": "BOTH",
+      "type": "adjusted",
+      "description": "【DP殿堂入り】龍覇 ワルボロフ\n【カード能力変更】透明妖精リリン / 聖霊王アルカディアス / 神秘の宝箱 / ムシャ・ルピア"
+    },
+    {
+      "date": "2024-08-29",
+      "label": "バランス調整",
+      "format": "BOTH",
+      "type": "adjusted",
+      "description": "【DP殿堂解除】魔光蟲ヴィルジニア卿 / 超神星アポロヌス・ドラゲリオン\n【AD殿堂解除】龍仙ロマネスク\n【カード能力変更】ジェネラル・クワガタン / 統率するレオパルド・ホーン / ブレイブ・ルピア / クリスタル・ツヴァイランサー / 烈流神 / モノノフ・ルピア / 電磁無頼アカシック・サード / 破壊と誕生の神殿"
+    },
+    {
+      "date": "2024-09-26",
+      "label": "DMPP-27",
+      "format": "BOTH",
+      "type": "added",
+      "description": "禁断伝説 -DISASTER OF X-"
+    },
+    {
+      "date": "2024-09-26",
+      "label": "DMPP-21",
+      "format": "ND",
+      "type": "removed",
+      "description": "ジ・オーバー・ロワイヤル -無法神聖紀-"
+    },
+    {
+      "date": "2024-09-26",
+      "label": "バランス調整",
+      "format": "BOTH",
+      "type": "adjusted",
+      "description": "【カード能力変更】アカシック・タレス / 侵略者 ランドショルド"
+    },
+    {
+      "date": "2024-11-21",
+      "label": "DMPP-28",
+      "format": "BOTH",
+      "type": "added",
+      "description": "蒼剣革命 -CHANGE THE FIELD-"
+    },
+    {
+      "date": "2024-11-21",
+      "label": "DMPP-22",
+      "format": "ND",
+      "type": "removed",
+      "description": "龍解紅蓮伝 -BEGINNING SAGA-"
+    },
+    {
+      "date": "2024-11-21",
+      "label": "バランス調整",
+      "format": "BOTH",
+      "type": "adjusted",
+      "description": "【カード能力変更】超砲手ボルカノドン"
+    },
+    {
+      "date": "2024-12-17",
+      "label": "DMPB-06",
+      "format": "BOTH",
+      "type": "added",
+      "description": "LEGEND OF PLAY'S 2025"
+    },
+    {
+      "date": "2024-12-17",
+      "label": "DMPB-07",
+      "format": "ND",
+      "type": "added",
+      "description": "デッキビルダー2025 アークセット"
+    },
+    {
+      "date": "2024-12-17",
+      "label": "DMPB-04",
+      "format": "ND",
+      "type": "removed",
+      "description": "LEGEND OF PLAY'S 2024"
+    },
+    {
+      "date": "2024-12-17",
+      "label": "DMPB-05",
+      "format": "ND",
+      "type": "removed",
+      "description": "デッキビルダー2024 アークセット"
+    },
+    {
+      "date": "2024-12-17",
+      "label": "バランス調整",
+      "format": "BOTH",
+      "type": "adjusted",
+      "description": "【カード能力変更】次元の霊峰 / 蒼狼の始祖アマテラス / 無双龍聖イージスブースト / 殺意の悪魔龍 マガンド"
+    },
+    {
+      "date": "2025-01-23",
+      "label": "DMPP-29",
+      "format": "BOTH",
+      "type": "added",
+      "description": "禁断ノ刻 -BLACKOUT JUDGEMENT-"
+    },
+    {
+      "date": "2025-01-23",
+      "label": "DMPP-23",
+      "format": "ND",
+      "type": "removed",
+      "description": "双剣王凱旋 -DRAGHEART SOLUTION-"
+    },
+    {
+      "date": "2025-01-23",
+      "label": "バランス調整",
+      "format": "BOTH",
+      "type": "adjusted",
+      "description": "【カード能力変更】剛撃無双カンクロウ / 風来の用心棒クマっ太 / 反射の大地カプリコン / ベニジシ・スパイダー / 熱血龍 バトリベンジ\n【能力処理変更】恐龍界樹 ジュダイオウ / 勝利の覇闘 ガイラオウ"
+    }
+  ]
+}
