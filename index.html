@@ -8,12 +8,8 @@
   <style>
     body { font-family: system-ui, sans-serif; margin: 16px; }
     .controls { display:flex; gap:12px; flex-wrap: wrap; align-items: end; margin-bottom: 12px; }
-    .field { display:flex; flex-direction: column; gap:4px; }
-    select { min-width: 260px; min-height: 160px; }
-    .chip { display:inline-block; padding:2px 6px; border-radius: 8px; color:#fff; font-size:11px; margin-right: 4px; }
-    .added { background:#2f855a; }
-    .removed { background:#dd6b20; }
-    .adjusted { background:#2b6cb0; }
+    .field { display:flex; flex-direction: column; gap:4px; min-width: 180px; }
+    select { min-width: 180px; }
     .chart-wrap { position: relative; height: 360px; }
     .event-row { position: relative; height: 34px; margin-top: 4px; }
     .event-label { position:absolute; transform:translateX(-50%); font-size: 10px; padding:2px 4px; border-radius: 4px; border:1px solid; white-space: nowrap; cursor: default; }
@@ -33,10 +29,11 @@
         <label><input type="radio" name="fmt" value="AD"> AD</label>
       </div>
     </div>
-    <div class="field">
-      <label>デッキ選択（最大5）</label>
-      <select id="deckSelect" multiple></select>
-    </div>
+    <div class="field"><label>デッキ1</label><select id="deck1"></select></div>
+    <div class="field"><label>デッキ2</label><select id="deck2"></select></div>
+    <div class="field"><label>デッキ3</label><select id="deck3"></select></div>
+    <div class="field"><label>デッキ4</label><select id="deck4"></select></div>
+    <div class="field"><label>デッキ5</label><select id="deck5"></select></div>
   </div>
   <div class="meta" id="meta"></div>
   <div class="chart-wrap"><canvas id="chart"></canvas></div>
