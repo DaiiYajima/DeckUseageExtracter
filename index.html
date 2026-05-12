@@ -7,10 +7,18 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
   <style>
     * { box-sizing: border-box; }
-    body { font-family: system-ui, sans-serif; margin: 12px; overflow-x: hidden; }
-    .controls { display:flex; gap:10px; flex-wrap: wrap; align-items: end; margin-bottom: 12px; }
+    body { font-family: system-ui, sans-serif; margin: 18px; overflow-x: hidden; }
+    .controls { display:flex; gap:10px; flex-wrap: wrap; align-items: end; margin: 0 0 12px 10px; }
     .field { display:flex; flex-direction: column; gap:4px; min-width: 168px; }
     select { min-width: 168px; max-width: 100%; }
+    .report-bar { display:flex; gap:12px; align-items:center; flex-wrap: wrap; margin: 8px 0; }
+    .report-actions { display:flex; gap:8px; flex-wrap: wrap; }
+    .report-actions button { border:1px solid #2b6cb0; border-radius:4px; background:#2b6cb0; color:#fff; padding:5px 9px; font: inherit; font-size: 13px; cursor:pointer; }
+    .report-actions button:disabled { border-color:#cbd5e0; color:#a0aec0; background:#f7fafc; cursor:not-allowed; }
+    .report-actions button:not(:disabled):hover { background:#2c5282; border-color:#2c5282; }
+    .reference-downloads { display:flex; justify-content:flex-end; gap:6px; align-items:center; margin: -8px 18px 8px 0; color:#718096; font-size: 11px; }
+    .reference-downloads button { border:0; background:transparent; color:#4a5568; padding:1px 2px; font: inherit; text-decoration: underline; cursor:pointer; }
+    .reference-downloads button:disabled { color:#a0aec0; cursor:not-allowed; }
     .chart-wrap { position: relative; height: 360px; }
     .event-row { position: relative; min-height: 34px; margin-top: 4px; }
     .event-label { position:absolute; transform:translateX(-50%); max-width: 86px; overflow:hidden; text-overflow:ellipsis; font-size: 10px; line-height: 1.2; padding:2px 4px; border-radius: 4px; border:1px solid; white-space: nowrap; cursor: default; }
@@ -20,7 +28,7 @@
     .event-tooltip { position: fixed; z-index: 20; max-width: min(360px, calc(100vw - 20px)); padding: 6px 8px; border-radius: 4px; background: #1a202c; color: #fff; font-size: 12px; line-height: 1.45; white-space: pre-line; opacity: 0; pointer-events: none; transform: translateY(2px); transition: opacity 0.04s ease, transform 0.04s ease; }
     .event-tooltip.visible { opacity: 1; transform: translateY(0); }
     .description { margin: 0 0 14px; padding-left: 1.2em; color: #444; font-size: 13px; line-height: 1.6; }
-    .meta { margin: 8px 0; color:#555; font-size: 13px; }
+    .meta { color:#555; font-size: 13px; }
   </style>
 </head>
 <body>
@@ -31,6 +39,10 @@
     <li>最大期間は2022/4/1 ~ 2025/2/28(BEANS様が対戦数テーブルを公開している期間)です。</li>
     <li>新弾直後など、デッキ名がBEANS様の集計対象になっていない期間は、実際にデッキが使われていても使用率0%となる場合があります。</li>
   </ul>
+  <div class="reference-downloads">
+    <span>参考:</span>
+    <button type="button" id="exportSources">元データDL</button>
+  </div>
   <div class="controls">
     <div class="field">
       <label>フォーマット</label>
@@ -45,7 +57,12 @@
     <div class="field"><label>デッキ4</label><select id="deck4"></select></div>
     <div class="field"><label>デッキ5</label><select id="deck5"></select></div>
   </div>
-  <div class="meta" id="meta"></div>
+  <div class="report-bar">
+    <div class="meta" id="meta"></div>
+    <div class="report-actions" aria-label="レポート出力">
+      <button type="button" id="exportChart">グラフ画像を保存</button>
+    </div>
+  </div>
   <div class="chart-wrap"><canvas id="chart"></canvas></div>
   <div class="event-row" id="eventRow"></div>
   <script src="./app.js"></script>
