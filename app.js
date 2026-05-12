@@ -143,7 +143,7 @@ function renderEventLabels(labels) {
     const el = document.createElement('div');
     const t = String(ev.type || '').toLowerCase();
     el.className = `event-label ${t}`;
-    el.textContent = `${getEventMark(t)} ${ev.label}`;
+    el.textContent = `${getEventMark(t)}${ev.label}`;
     el.setAttribute('aria-label', ev.description || ev.label || '');
     attachEventTooltip(el, ev.description || ev.label || '');
     el.style.left = `${displayX}px`;
@@ -185,9 +185,9 @@ function moveTooltip(event) {
 }
 
 function getEventMark(type) {
-  if (type === 'added') return '＋';
-  if (type === 'removed') return '－';
-  if (type === 'adjusted') return '↻';
+  if (type === 'added') return '➕';
+  if (type === 'removed') return '➖';
+  if (type === 'adjusted') return '';
   return '•';
 }
 
