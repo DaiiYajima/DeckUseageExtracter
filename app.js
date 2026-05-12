@@ -1,4 +1,4 @@
-const CSV_PATHS = { ND: './nd_useage_matrix.csv', AD: './ad_useage_matrix.csv' };
+const CSV_PATHS = { ND: './nd_usage_matrix.csv', AD: './ad_usage_matrix.csv' };
 let state = { fmt: 'ND', dates: [], decks: {}, chart: null, events: [] };
 const selectIds = ['deck1', 'deck2', 'deck3', 'deck4', 'deck5'];
 const deckSelects = selectIds.map(id => document.getElementById(id));
