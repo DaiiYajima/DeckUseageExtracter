@@ -16,6 +16,13 @@
     .report-actions button { border:1px solid #2b6cb0; border-radius:4px; background:#2b6cb0; color:#fff; padding:5px 9px; font: inherit; font-size: 13px; cursor:pointer; }
     .report-actions button:disabled { border-color:#cbd5e0; color:#a0aec0; background:#f7fafc; cursor:not-allowed; }
     .report-actions button:not(:disabled):hover { background:#2c5282; border-color:#2c5282; }
+    .image-preview { display:none; margin: 10px 0 14px; padding: 10px; border: 1px solid #2d3748; border-radius: 6px; background: #1a202c; }
+    .image-preview.visible { display:block; }
+    .image-preview-header { display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom: 8px; }
+    .image-preview-title { margin:0; color:#edf2f7; font-size: 13px; font-weight: 700; }
+    .image-preview-close { border:1px solid #4a5568; border-radius:4px; background:#2d3748; color:#edf2f7; padding:4px 8px; font: inherit; font-size: 12px; cursor:pointer; }
+    .image-preview-close:hover { background:#4a5568; }
+    .image-preview img { display:block; width:100%; max-width:100%; height:auto; border:1px solid #4a5568; background:#fff; touch-action: manipulation; -webkit-user-select: auto; user-select: auto; }
     .reference-downloads { display:flex; justify-content:flex-end; gap:6px; align-items:center; margin: -8px 18px 8px 0; color:#718096; font-size: 11px; }
     .reference-downloads button { border:0; background:transparent; color:#4a5568; padding:1px 2px; font: inherit; text-decoration: underline; cursor:pointer; }
     .reference-downloads button:disabled { color:#a0aec0; cursor:not-allowed; }
@@ -29,6 +36,20 @@
     .event-tooltip.visible { opacity: 1; transform: translateY(0); }
     .description { margin: 0 0 14px; padding-left: 1.2em; color: #444; font-size: 13px; line-height: 1.6; }
     .meta { color:#555; font-size: 13px; }
+    @media (max-width: 640px) {
+      body { margin: 10px; }
+      h1 { font-size: 20px; line-height: 1.25; }
+      .description { padding-left: 1em; font-size: 12px; }
+      .reference-downloads { justify-content:flex-start; margin: 0 0 10px; }
+      .controls { display:grid; grid-template-columns: 1fr; gap:8px; margin-left: 0; }
+      .field, select { width: 100%; min-width: 0; }
+      select, button, input { font-size: 16px; }
+      .report-bar { align-items: stretch; }
+      .report-actions, .report-actions button { width: 100%; }
+      .report-actions button { min-height: 40px; }
+      .chart-wrap { height: 320px; }
+      .image-preview { padding: 8px; }
+    }
   </style>
 </head>
 <body>
@@ -60,8 +81,15 @@
   <div class="report-bar">
     <div class="meta" id="meta"></div>
     <div class="report-actions" aria-label="レポート出力">
-      <button type="button" id="exportChart">グラフ画像を保存</button>
+      <button type="button" id="exportChart">画像として表示</button>
     </div>
+  </div>
+  <div class="image-preview" id="imagePreview" aria-live="polite">
+    <div class="image-preview-header">
+      <p class="image-preview-title">画像プレビュー</p>
+      <button type="button" class="image-preview-close" id="closeImagePreview">閉じる</button>
+    </div>
+    <img id="previewImage" alt="グラフ画像プレビュー" />
   </div>
   <div class="chart-wrap"><canvas id="chart"></canvas></div>
   <div class="event-row" id="eventRow"></div>

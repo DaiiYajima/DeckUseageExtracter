@@ -7,6 +7,16 @@ const reportButtons = {
   sources: document.getElementById('exportSources'),
   chart: document.getElementById('exportChart'),
 };
+const imagePreview = document.getElementById('imagePreview');
+const previewImage = document.getElementById('previewImage');
+const closeImagePreviewButton = document.getElementById('closeImagePreview');
+let previewImageUrl = '';
+const REPORT_IMAGE_WIDTH = 1200;
+const REPORT_CHART_HEIGHT = 620;
+const REPORT_EVENT_GAP = 8;
+const REPORT_IMAGE_HEIGHT = 720;
+const CHART_POINT_RADIUS = 2;
+const CHART_POINT_HOVER_RADIUS = 4;
 const eventTooltip = document.createElement('div');
 eventTooltip.className = 'event-tooltip';
 document.body.appendChild(eventTooltip);
@@ -202,6 +212,7 @@ function updateReportButtons(hasChart) {
     reportButtons.chart.disabled = !hasChart;
     reportButtons.chart.hidden = !hasChart;
   }
+  if (!hasChart) closeImagePreview();
 }
 
 function downloadFile(filename, content, type) {
@@ -310,54 +321,145 @@ function exportSourcesZip() {
   downloadFile('deck_usage_source_data.zip', zip, 'application/zip');
 }
 
-async function exportChartPng() {
+async function showChartImage() {
   if (!state.chart || !state.report) return;
 
   const canvas = await buildReportCanvas();
-  const link = document.createElement('a');
-  link.href = canvas.toDataURL('image/png');
-  link.download = `${getReportBaseName()}_chart.png`;
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
+  const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+  if (!blob || !previewImage || !imagePreview) return;
+
+  if (previewImageUrl) URL.revokeObjectURL(previewImageUrl);
+  previewImageUrl = URL.createObjectURL(blob);
+  previewImage.src = previewImageUrl;
+  previewImage.alt = `${getReportBaseName()}_chart`;
+  imagePreview.classList.add('visible');
+  imagePreview.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function closeImagePreview() {
+  if (!imagePreview || !previewImage) return;
+
+  imagePreview.classList.remove('visible');
+  previewImage.removeAttribute('src');
+  if (previewImageUrl) {
+    URL.revokeObjectURL(previewImageUrl);
+    previewImageUrl = '';
+  }
 }
 
 async function buildReportCanvas() {
-  const chartCanvas = document.getElementById('chart');
-  const eventRow = document.getElementById('eventRow');
-  const chartRect = chartCanvas.getBoundingClientRect();
-  const eventRect = eventRow.getBoundingClientRect();
-  const scale = window.devicePixelRatio || 1;
+  const scale = Math.max(1, window.devicePixelRatio || 1);
   const out = document.createElement('canvas');
-  out.width = Math.ceil(Math.max(chartRect.width, eventRect.width) * scale);
-  out.height = Math.ceil((chartRect.height + eventRect.height + 8) * scale);
-
+  out.width = REPORT_IMAGE_WIDTH * scale;
+  out.height = REPORT_IMAGE_HEIGHT * scale;
   const ctx = out.getContext('2d');
   ctx.scale(scale, scale);
   ctx.fillStyle = '#fff';
-  ctx.fillRect(0, 0, out.width / scale, out.height / scale);
-  ctx.drawImage(chartCanvas, 0, 0, chartRect.width, chartRect.height);
-  renderEventRowToCanvas(ctx, eventRow, chartRect.height + 8);
+  ctx.fillRect(0, 0, REPORT_IMAGE_WIDTH, REPORT_IMAGE_HEIGHT);
+
+  const chartCanvas = document.createElement('canvas');
+  chartCanvas.style.width = `${REPORT_IMAGE_WIDTH}px`;
+  chartCanvas.style.height = `${REPORT_CHART_HEIGHT}px`;
+  chartCanvas.width = REPORT_IMAGE_WIDTH;
+  chartCanvas.height = REPORT_CHART_HEIGHT;
+
+  const report = state.report;
+  const exportChart = new Chart(chartCanvas, {
+    type: 'line',
+    data: {
+      labels: report.labels,
+      datasets: [{
+        label: report.selected.join(' + '),
+        data: report.values,
+        borderColor: '#2b6cb0',
+        pointRadius: CHART_POINT_RADIUS,
+        pointHoverRadius: CHART_POINT_HOVER_RADIUS,
+        tension: 0.25,
+      }],
+    },
+    options: {
+      animation: false,
+      responsive: false,
+      maintainAspectRatio: false,
+      devicePixelRatio: scale,
+      plugins: {
+        eventLines: { events: report.visibleEvents },
+        legend: {
+          onClick: null,
+        },
+        tooltip: {
+          enabled: false,
+        },
+      },
+      scales: {
+        y: {
+          title: {
+            display: true,
+            text: '使用率',
+          },
+          ticks: {
+            callback: value => `${value}%`,
+          },
+        },
+      },
+    },
+  });
+
+  exportChart.update('none');
+  ctx.drawImage(chartCanvas, 0, 0, REPORT_IMAGE_WIDTH, REPORT_CHART_HEIGHT);
+  renderReportEventLabels(ctx, exportChart, report.visibleEvents, REPORT_CHART_HEIGHT + REPORT_EVENT_GAP, REPORT_IMAGE_WIDTH);
+  exportChart.destroy();
 
   return out;
 }
 
-function renderEventRowToCanvas(ctx, eventRow, yOffset) {
-  const rowRect = eventRow.getBoundingClientRect();
-  const labels = [...eventRow.querySelectorAll('.event-label')];
+function renderReportEventLabels(ctx, chart, events, yOffset, rowWidth) {
+  const datasetMeta = chart.getDatasetMeta(0);
+  const lanes = [];
+  const labelGap = 8;
+  const laneHeight = 20;
+  const rowPadding = 8;
+  const font = '12px system-ui, sans-serif';
+  ctx.font = font;
 
-  labels.forEach(label => {
-    const rect = label.getBoundingClientRect();
-    const styles = getComputedStyle(label);
-    const x = rect.left - rowRect.left;
-    const y = yOffset + rect.top - rowRect.top;
+  const labels = events.map(ev => {
+    const x = datasetMeta.data[ev.index]?.x;
+    const text = `${getEventMark(String(ev.type || '').toLowerCase())}${ev.label}`;
+    return {
+      ...ev,
+      x,
+      text,
+      width: Math.min(140, Math.max(34, ctx.measureText(text).width + 18)),
+    };
+  }).filter(ev => Number.isFinite(ev.x)).sort((a, b) => a.x - b.x);
 
-    drawRoundedRect(ctx, x, y, rect.width, rect.height, 4, styles.backgroundColor, styles.borderColor);
-    ctx.fillStyle = styles.color;
-    ctx.font = `${styles.fontSize} ${styles.fontFamily}`;
+  labels.forEach(ev => {
+    const type = String(ev.type || '').toLowerCase();
+    const colors = getEventLabelColors(type);
+    const displayX = Math.min(Math.max(ev.x, ev.width / 2 + rowPadding), rowWidth - ev.width / 2 - rowPadding);
+    const left = displayX - ev.width / 2;
+    const right = displayX + ev.width / 2;
+    let lane = lanes.findIndex(end => left > end + labelGap);
+    if (lane === -1) lane = lanes.length;
+    lanes[lane] = right;
+
+    const x = displayX - ev.width / 2;
+    const y = yOffset + lane * laneHeight;
+    const height = 16;
+
+    drawRoundedRect(ctx, x, y, ev.width, height, 4, colors.background, colors.border);
+    ctx.fillStyle = colors.text;
+    ctx.font = font;
     ctx.textBaseline = 'middle';
-    ctx.fillText(label.textContent, x + 4, y + rect.height / 2, rect.width - 8);
+    ctx.fillText(ev.text, x + 6, y + height / 2, ev.width - 12);
   });
+}
+
+function getEventLabelColors(type) {
+  if (type === 'added') return { background: '#e6fffa', text: '#1f6f5d', border: '#81e6d9' };
+  if (type === 'removed') return { background: '#fffaf0', text: '#9c4221', border: '#f6ad55' };
+  if (type === 'adjusted') return { background: '#ebf8ff', text: '#2c5282', border: '#90cdf4' };
+  return { background: '#f7fafc', text: '#4a5568', border: '#cbd5e0' };
 }
 
 function drawRoundedRect(ctx, x, y, width, height, radius, fill, stroke) {
@@ -379,6 +481,7 @@ function drawRoundedRect(ctx, x, y, width, height, radius, fill, stroke) {
 }
 
 function render() {
+  closeImagePreview();
   const selected = getSelectedDecks();
   if (!selected.length) {
     if (state.chart) {
@@ -417,7 +520,14 @@ function render() {
     type: 'line',
     data: {
       labels,
-      datasets: [{ label: selected.join(' + '), data: values, borderColor: '#2b6cb0', tension: 0.25 }],
+      datasets: [{
+        label: selected.join(' + '),
+        data: values,
+        borderColor: '#2b6cb0',
+        pointRadius: CHART_POINT_RADIUS,
+        pointHoverRadius: CHART_POINT_HOVER_RADIUS,
+        tension: 0.25,
+      }],
     },
     options: {
       responsive: true,
@@ -496,7 +606,8 @@ async function init() {
 
   deckSelects.forEach(sel => sel.addEventListener('change', render));
   reportButtons.sources?.addEventListener('click', exportSourcesZip);
-  reportButtons.chart?.addEventListener('click', exportChartPng);
+  reportButtons.chart?.addEventListener('click', showChartImage);
+  closeImagePreviewButton?.addEventListener('click', closeImagePreview);
   updateReportButtons(false);
   await loadCsv();
 }
