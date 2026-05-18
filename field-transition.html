@@ -4,44 +4,825 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>環境内の使用率推移</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
   <style>
     * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: system-ui, sans-serif;
-      color: #1f2937;
-      background: #f8fafc;
+    body { font-family: system-ui, sans-serif; margin: 18px; overflow-x: hidden; }
+    .home-link { display:inline-block; margin-bottom: 12px; color:#2b6cb0; text-decoration:none; font-size: 13px; }
+    .home-link:hover, .home-link:focus-visible { text-decoration: underline; }
+    .description { margin: 0 0 14px; padding-left: 1.2em; color: #444; font-size: 13px; line-height: 1.6; }
+    .controls { display:flex; gap:10px; flex-wrap: wrap; align-items: end; margin: 0 0 12px 10px; }
+    .field { display:flex; flex-direction: column; gap:4px; min-width: 168px; }
+    select { min-width: 168px; max-width: 100%; }
+    .report-bar { display:flex; gap:12px; align-items:center; flex-wrap: wrap; margin: 8px 0; }
+    .report-actions { display:flex; gap:8px; flex-wrap: wrap; }
+    .report-actions button { border:1px solid #2b6cb0; border-radius:4px; background:#2b6cb0; color:#fff; padding:5px 9px; font: inherit; font-size: 13px; cursor:pointer; }
+    .report-actions button:disabled { border-color:#cbd5e0; color:#a0aec0; background:#f7fafc; cursor:not-allowed; }
+    .report-actions button:not(:disabled):hover { background:#2c5282; border-color:#2c5282; }
+    .meta { color:#555; font-size: 13px; }
+    .image-preview { display:none; margin: 10px 0 14px; padding: 10px; border: 1px solid #2d3748; border-radius: 6px; background: #1a202c; }
+    .image-preview.visible { display:block; }
+    .image-preview-header { display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom: 8px; }
+    .image-preview-title { margin:0; color:#edf2f7; font-size: 13px; font-weight: 700; }
+    .image-preview-close { border:1px solid #4a5568; border-radius:4px; background:#2d3748; color:#edf2f7; padding:4px 8px; font: inherit; font-size: 12px; cursor:pointer; }
+    .image-preview-close:hover { background:#4a5568; }
+    .image-preview img { display:block; width:100%; max-width:100%; height:auto; border:1px solid #4a5568; background:#fff; touch-action: manipulation; -webkit-user-select: auto; user-select: auto; }
+    .chart-wrap {
+      position: relative;
+      height: 360px;
     }
-    main {
-      width: min(760px, calc(100% - 32px));
-      margin: 0 auto;
-      padding: 48px 0;
+    .chart-placeholder {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      padding: 16px;
+      color: #2d3748;
+      font-size: 13px;
+      font-weight: 700;
+      text-align: center;
+      pointer-events: none;
     }
-    a {
-      color: #2563eb;
-      text-decoration: none;
-    }
-    a:hover,
-    a:focus-visible {
-      text-decoration: underline;
-    }
-    h1 {
-      margin: 22px 0 10px;
-      font-size: clamp(26px, 5vw, 38px);
-      line-height: 1.15;
-    }
-    p {
-      margin: 0;
-      color: #4b5563;
-      line-height: 1.7;
+    .chart-placeholder.hidden { display: none; }
+    .event-row { position: relative; min-height: 34px; margin-top: 4px; }
+    .event-label { position:absolute; transform:translateX(-50%); max-width: 86px; overflow:hidden; text-overflow:ellipsis; font-size: 10px; line-height: 1.2; padding:2px 4px; border-radius: 4px; border:1px solid; white-space: nowrap; cursor: default; }
+    .event-label.added { background:#e6fffa; color:#1f6f5d; border-color:#81e6d9; }
+    .event-label.removed { background:#fffaf0; color:#9c4221; border-color:#f6ad55; }
+    .event-label.adjusted { background:#ebf8ff; color:#2c5282; border-color:#90cdf4; }
+    .major-legend { display:flex; gap:8px 14px; flex-wrap: wrap; align-items:center; margin: 8px 0 4px; color:#4a5568; font-size: 12px; }
+    .major-legend:empty { display:none; }
+    .major-legend-item { display:inline-flex; align-items:center; gap:5px; max-width: 220px; }
+    .major-legend-swatch { width: 18px; height: 8px; border-radius: 2px; border:1px solid rgba(0, 0, 0, 0.12); flex: 0 0 auto; }
+    .major-legend-name { overflow:hidden; text-overflow:ellipsis; white-space: nowrap; }
+    .event-tooltip { position: fixed; z-index: 20; max-width: min(360px, calc(100vw - 20px)); padding: 6px 8px; border-radius: 4px; background: #1a202c; color: #fff; font-size: 12px; line-height: 1.45; white-space: pre-line; opacity: 0; pointer-events: none; transform: translateY(2px); transition: opacity 0.04s ease, transform 0.04s ease; }
+    .event-tooltip.visible { opacity: 1; transform: translateY(0); }
+    @media (max-width: 640px) {
+      body { margin: 10px; }
+      h1 { font-size: 20px; line-height: 1.25; }
+      .description { padding-left: 1em; font-size: 12px; }
+      .controls { display:grid; grid-template-columns: 1fr; gap:8px; margin-left: 0; }
+      .field, select { width: 100%; min-width: 0; }
+      select, button, input { font-size: 16px; }
+      .report-bar { align-items: stretch; }
+      .report-actions, .report-actions button { width: 100%; }
+      .report-actions button { min-height: 40px; }
+      .image-preview { padding: 8px; }
+      .chart-wrap { height: 320px; }
     }
   </style>
 </head>
 <body>
-  <main>
-    <a href="./index.html">解析メニューへ戻る</a>
-    <h1>環境内の使用率推移</h1>
-    <p>この解析は準備中です。</p>
-  </main>
+  <a class="home-link" href="./index.html">メニューへ戻る</a>
+  <h1>環境内の使用率推移</h1>
+  <ul class="description">
+    <li>始点と終点の環境を選択すると、その期間の使用率推移を積み上げ式グラフで確認できます。帯の太さが使用率の高さを示します。</li>
+    <li>主要デッキ（使用率が一度でも10%以上となったデッキ）は、凡例が表示されます。</li>
+    <li>選択できる環境は連続最大3つです。いっぱい描画しすぎると重くなるので😹</li>
+  </ul>
+  <div class="controls">
+    <div class="field">
+      <label>フォーマット</label>
+      <div>
+        <label><input type="radio" name="fmt" value="ND" checked> ND</label>
+        <label><input type="radio" name="fmt" value="AD"> AD</label>
+      </div>
+    </div>
+    <div class="field">
+      <label for="field1">ここから</label>
+      <select id="field1">
+        <option value="">（未選択）</option>
+      </select>
+    </div>
+    <div class="field">
+      <label for="field2">ここまで</label>
+      <select id="field2">
+        <option value="">（未選択）</option>
+      </select>
+    </div>
+  </div>
+  <div class="report-bar">
+    <div class="meta" id="meta">環境を選択してください</div>
+    <div class="report-actions" aria-label="レポート出力">
+      <button type="button" id="exportChart" disabled hidden>画像として表示</button>
+    </div>
+  </div>
+  <div class="major-legend" id="majorLegend" aria-label="主要デッキ凡例"></div>
+  <div class="image-preview" id="imagePreview" aria-live="polite">
+    <div class="image-preview-header">
+      <p class="image-preview-title">画像プレビュー</p>
+      <button type="button" class="image-preview-close" id="closeImagePreview">閉じる</button>
+    </div>
+    <img id="previewImage" alt="グラフ画像プレビュー" />
+  </div>
+  <div class="chart-wrap">
+    <canvas id="chart"></canvas>
+    <div class="chart-placeholder" id="chartPlaceholder">グラフ表示スペース</div>
+  </div>
+  <div class="event-row" id="eventRow"></div>
+  <script>
+    const CSV_PATHS = { ND: './usage_matrix_nd.csv', AD: './usage_matrix_ad.csv' };
+    const state = { fmt: 'ND', fields: [], events: [], dates: [], decks: {}, chart: null, report: null, sourceCsvs: {}, chartHoverHandler: null, chartLeaveHandler: null };
+    const fieldSelects = [
+      document.getElementById('field1'),
+      document.getElementById('field2'),
+    ];
+    const meta = document.getElementById('meta');
+    const exportChartButton = document.getElementById('exportChart');
+    const imagePreview = document.getElementById('imagePreview');
+    const previewImage = document.getElementById('previewImage');
+    const closeImagePreviewButton = document.getElementById('closeImagePreview');
+    const chartPlaceholder = document.getElementById('chartPlaceholder');
+    const majorLegend = document.getElementById('majorLegend');
+    const eventRow = document.getElementById('eventRow');
+    const eventTooltip = document.createElement('div');
+    eventTooltip.className = 'event-tooltip';
+    document.body.appendChild(eventTooltip);
+    let previewImageUrl = '';
+    const REPORT_IMAGE_WIDTH = 1200;
+    const REPORT_CHART_HEIGHT = 620;
+    const REPORT_LEGEND_TOP = 10;
+    const REPORT_CHART_TOP = 74;
+    const REPORT_EVENT_TOP = REPORT_CHART_TOP + REPORT_CHART_HEIGHT + 10;
+    const REPORT_IMAGE_HEIGHT = 780;
+
+    const eventLinePlugin = {
+      id: 'fieldEventLines',
+      afterDatasetsDraw(chart, _args, options) {
+        const events = options?.events || [];
+        if (!events.length) return;
+
+        const { ctx, chartArea, scales } = chart;
+        const xScale = scales.x;
+        const xPositions = [...new Set(events.map(ev => Math.round(xScale.getPixelForValue(ev.index))).filter(Number.isFinite))];
+
+        ctx.save();
+        ctx.strokeStyle = '#718096';
+        ctx.lineWidth = 1;
+        ctx.setLineDash([3, 4]);
+        xPositions.forEach(x => {
+          ctx.beginPath();
+          ctx.moveTo(x, chartArea.top);
+          ctx.lineTo(x, chartArea.bottom);
+          ctx.stroke();
+        });
+        ctx.restore();
+      },
+    };
+
+    Chart.register(eventLinePlugin);
+
+    function parseCell(value) {
+      const text = String(value ?? '').trim();
+      if (!text || ['NA', 'N/A', '#N/A'].includes(text.toUpperCase())) return null;
+      const number = Number(text.replace('%', ''));
+      return Number.isNaN(number) ? null : number;
+    }
+
+    function parseCsv(text) {
+      const lines = text.trim().split('\n').map(line => line.split(','));
+      const dates = lines[0].slice(1).map(date => date.trim());
+      const decks = {};
+
+      for (let i = 1; i < lines.length; i++) {
+        const name = (lines[i][0] || '').trim();
+        if (!name || name === 'イベント') continue;
+        decks[name] = dates.map((_, index) => parseCell(lines[i][index + 1]));
+      }
+
+      return { dates, decks };
+    }
+
+    function isTargetFormat(event) {
+      return event.format === 'BOTH' || event.format === state.fmt;
+    }
+
+    function formatFieldLabel(event) {
+      return [event.label, event.description].filter(Boolean).join(': ');
+    }
+
+    function getFieldValue(event) {
+      return [event.date, event.format, event.label].join('|');
+    }
+
+    function parseFieldValue(value) {
+      const [date, format, label] = String(value || '').split('|');
+      return { date, format, label };
+    }
+
+    function toCsvDate(date) {
+      return String(date || '').replace(/-/g, '/');
+    }
+
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>"']/g, char => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;',
+      }[char]));
+    }
+
+    function setupFieldOptions() {
+      const optionsHtml = [
+        '<option value="">（未選択）</option>',
+        ...state.fields.map(event => `<option value="${escapeHtml(getFieldValue(event))}">${escapeHtml(formatFieldLabel(event))}</option>`),
+      ].join('');
+
+      fieldSelects.forEach(select => {
+        const currentValue = select.value;
+        select.innerHTML = optionsHtml;
+        select.value = state.fields.some(event => getFieldValue(event) === currentValue) ? currentValue : '';
+      });
+      render();
+    }
+
+    function uniqueByDate(events) {
+      const seenDates = new Set();
+      return events.filter(event => {
+        if (seenDates.has(event.date)) return false;
+        seenDates.add(event.date);
+        return true;
+      });
+    }
+
+    function updateMeta() {
+      const [start, end] = getSelectedFields();
+      if (!start || !end) {
+        meta.textContent = '「ここから」、「ここまで」を選択してください';
+        return;
+      }
+      meta.textContent = `期間: ${toCsvDate(start.date)} ~ ${toCsvDate(end.date)}`;
+    }
+
+    function getSelectedFields() {
+      return fieldSelects.map(select => select.value ? parseFieldValue(select.value) : null);
+    }
+
+    function getFieldIndex(field) {
+      if (!field) return -1;
+      const value = getFieldValue(field);
+      return state.fields.findIndex(event => getFieldValue(event) === value);
+    }
+
+    function getRangeIndexes(start, end) {
+      const startIndex = state.dates.indexOf(toCsvDate(start.date));
+      const endFieldIndex = getFieldIndex(end);
+      const nextField = state.fields[endFieldIndex + 1];
+      let endIndex = state.dates.length - 1;
+
+      if (nextField) {
+        const nextStartIndex = state.dates.indexOf(toCsvDate(nextField.date));
+        if (nextStartIndex !== -1) endIndex = nextStartIndex - 1;
+      }
+
+      return { startIndex, endIndex };
+    }
+
+    function getSelectedFieldCount(start, end) {
+      const startFieldIndex = getFieldIndex(start);
+      const endFieldIndex = getFieldIndex(end);
+      if (startFieldIndex === -1 || endFieldIndex === -1 || startFieldIndex > endFieldIndex) return null;
+      return endFieldIndex - startFieldIndex + 1;
+    }
+
+    function getVisibleEvents(labels) {
+      return labels.flatMap((date, index) => {
+        const dayEvents = state.events.filter(event => isTargetFormat(event) && toCsvDate(event.date) === date);
+        return dayEvents.map(event => ({ ...event, index }));
+      });
+    }
+
+    function getEventMark(type) {
+      if (type === 'added') return '+';
+      if (type === 'removed') return '-';
+      if (type === 'adjusted') return '';
+      return '*';
+    }
+
+    function renderEventLabels(events) {
+      eventRow.innerHTML = '';
+      if (!state.chart) return;
+
+      const xScale = state.chart.scales.x;
+      const lanes = [];
+      const labelGap = 6;
+      const laneHeight = 18;
+      const rowPadding = 4;
+      const rowWidth = eventRow.clientWidth;
+      const labels = events.map(event => ({
+        ...event,
+        x: xScale.getPixelForValue(event.index),
+        width: Math.min(86, Math.max(28, String(event.label || '').length * 7 + 22)),
+      })).filter(event => Number.isFinite(event.x)).sort((a, b) => a.x - b.x);
+
+      labels.forEach(event => {
+        const displayX = Math.min(Math.max(event.x, event.width / 2 + rowPadding), rowWidth - event.width / 2 - rowPadding);
+        const left = displayX - event.width / 2;
+        const right = displayX + event.width / 2;
+        let lane = lanes.findIndex(end => left > end + labelGap);
+        if (lane === -1) lane = lanes.length;
+        lanes[lane] = right;
+
+        const type = String(event.type || '').toLowerCase();
+        const element = document.createElement('div');
+        element.className = `event-label ${type}`;
+        element.textContent = `${getEventMark(type)}${event.label}`;
+        element.setAttribute('aria-label', event.description || event.label || '');
+        attachEventTooltip(element, event.description || event.label || '');
+        element.style.left = `${displayX}px`;
+        element.style.top = `${lane * laneHeight}px`;
+        eventRow.appendChild(element);
+      });
+
+      eventRow.style.height = `${Math.max(34, lanes.length * laneHeight + 4)}px`;
+    }
+
+    function attachEventTooltip(element, text) {
+      if (!text) return;
+
+      const show = event => {
+        eventTooltip.textContent = text;
+        eventTooltip.classList.add('visible');
+        moveTooltip(event);
+      };
+      const hide = () => eventTooltip.classList.remove('visible');
+
+      element.addEventListener('mouseenter', show);
+      element.addEventListener('mousemove', moveTooltip);
+      element.addEventListener('mouseleave', hide);
+      element.addEventListener('focus', show);
+      element.addEventListener('blur', hide);
+    }
+
+    function moveTooltip(event) {
+      const margin = 10;
+      const offset = 14;
+      const rect = eventTooltip.getBoundingClientRect();
+      const pointerX = event.clientX ?? event.target.getBoundingClientRect().left;
+      const pointerY = event.clientY ?? event.target.getBoundingClientRect().top;
+      const left = Math.min(pointerX + offset, window.innerWidth - rect.width - margin);
+      const top = Math.min(pointerY + offset, window.innerHeight - rect.height - margin);
+
+      eventTooltip.style.left = `${Math.max(margin, left)}px`;
+      eventTooltip.style.top = `${Math.max(margin, top)}px`;
+    }
+
+    function getColor(index, alpha = 1) {
+      const hue = (index * 47) % 360;
+      return `hsla(${hue}, 62%, 48%, ${alpha})`;
+    }
+
+    function formatPercent(value) {
+      return typeof value === 'number' ? `${value.toFixed(1)}%` : '0.0%';
+    }
+
+    function clearChart(message = 'グラフ表示スペース') {
+      if (state.chart) {
+        detachBandTooltip();
+        state.chart.destroy();
+        state.chart = null;
+      }
+      closeImagePreview();
+      chartPlaceholder.textContent = message;
+      chartPlaceholder.classList.remove('hidden');
+      eventRow.innerHTML = '';
+      eventRow.style.height = '';
+      majorLegend.innerHTML = '';
+      state.report = null;
+      updateExportButton(false);
+    }
+
+    function detachBandTooltip() {
+      if (!state.chart) return;
+      if (state.chartHoverHandler) {
+        state.chart.canvas.removeEventListener('mousemove', state.chartHoverHandler);
+        state.chartHoverHandler = null;
+      }
+      if (state.chartLeaveHandler) {
+        state.chart.canvas.removeEventListener('mouseleave', state.chartLeaveHandler);
+        state.chartLeaveHandler = null;
+      }
+    }
+
+    function attachBandTooltip() {
+      if (!state.chart) return;
+
+      const chart = state.chart;
+      state.chartHoverHandler = event => {
+        const point = Chart.helpers.getRelativePosition(event, chart);
+        const xScale = chart.scales.x;
+        const yScale = chart.scales.y;
+        const dataIndex = Math.round(xScale.getValueForPixel(point.x));
+
+        if (dataIndex < 0 || dataIndex >= chart.data.labels.length) {
+          chart.tooltip.setActiveElements([], { x: point.x, y: point.y });
+          chart.update('none');
+          return;
+        }
+
+        let lower = 0;
+        let activeDatasetIndex = -1;
+        for (let i = 0; i < chart.data.datasets.length; i++) {
+          const value = chart.data.datasets[i].data[dataIndex] || 0;
+          const upper = lower + value;
+          const top = yScale.getPixelForValue(upper);
+          const bottom = yScale.getPixelForValue(lower);
+
+          if (value > 0 && point.y >= top && point.y <= bottom) {
+            activeDatasetIndex = i;
+            break;
+          }
+          lower = upper;
+        }
+
+        if (activeDatasetIndex === -1) {
+          chart.tooltip.setActiveElements([], { x: point.x, y: point.y });
+        } else {
+          chart.tooltip.setActiveElements([{ datasetIndex: activeDatasetIndex, index: dataIndex }], { x: point.x, y: point.y });
+        }
+        chart.update('none');
+      };
+
+      state.chartLeaveHandler = () => {
+        chart.tooltip.setActiveElements([], { x: 0, y: 0 });
+        chart.update('none');
+      };
+
+      chart.canvas.addEventListener('mousemove', state.chartHoverHandler);
+      chart.canvas.addEventListener('mouseleave', state.chartLeaveHandler);
+    }
+
+    function isMajorDeck(deck) {
+      return deck.values.some(value => value > 10);
+    }
+
+    function renderMajorLegend(decks) {
+      majorLegend.innerHTML = decks
+        .filter(deck => deck.isMajor)
+        .map(deck => `
+          <span class="major-legend-item" title="${escapeHtml(deck.name)}">
+            <span class="major-legend-swatch" style="background:${escapeHtml(deck.color)}"></span>
+            <span class="major-legend-name">${escapeHtml(deck.name)}</span>
+          </span>
+        `)
+        .join('');
+    }
+
+    function updateExportButton(hasChart) {
+      exportChartButton.disabled = !hasChart;
+      exportChartButton.hidden = !hasChart;
+    }
+
+    function closeImagePreview() {
+      imagePreview.classList.remove('visible');
+      previewImage.removeAttribute('src');
+      if (previewImageUrl) {
+        URL.revokeObjectURL(previewImageUrl);
+        previewImageUrl = '';
+      }
+    }
+
+    function getReportBaseName() {
+      if (!state.report) return `field_transition_${state.fmt}`;
+      return `field_transition_${state.fmt}_${state.report.labels[0]}_${state.report.labels.at(-1)}`.replaceAll('/', '-');
+    }
+
+    async function showChartImage() {
+      if (!state.chart || !state.report) return;
+
+      const canvas = buildReportCanvas();
+      const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+      if (!blob) return;
+
+      if (previewImageUrl) URL.revokeObjectURL(previewImageUrl);
+      previewImageUrl = URL.createObjectURL(blob);
+      previewImage.src = previewImageUrl;
+      previewImage.alt = `${getReportBaseName()}_chart`;
+      imagePreview.classList.add('visible');
+      imagePreview.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function buildReportCanvas() {
+      const scale = Math.max(1, window.devicePixelRatio || 1);
+      const out = document.createElement('canvas');
+      out.width = REPORT_IMAGE_WIDTH * scale;
+      out.height = REPORT_IMAGE_HEIGHT * scale;
+      const ctx = out.getContext('2d');
+      ctx.scale(scale, scale);
+      ctx.fillStyle = '#fff';
+      ctx.fillRect(0, 0, REPORT_IMAGE_WIDTH, REPORT_IMAGE_HEIGHT);
+
+      const chartCanvas = document.createElement('canvas');
+      chartCanvas.width = REPORT_IMAGE_WIDTH;
+      chartCanvas.height = REPORT_CHART_HEIGHT;
+      chartCanvas.style.width = `${REPORT_IMAGE_WIDTH}px`;
+      chartCanvas.style.height = `${REPORT_CHART_HEIGHT}px`;
+
+      const exportChart = new Chart(chartCanvas, {
+        type: 'line',
+        data: {
+          labels: state.report.labels,
+          datasets: state.report.decks.map(deck => ({
+            label: deck.name,
+            data: deck.values,
+            borderColor: deck.color,
+            backgroundColor: deck.backgroundColor,
+            borderWidth: deck.isMajor ? 1.8 : 1,
+            pointRadius: 0,
+            pointHoverRadius: 3,
+            tension: 0.2,
+            fill: true,
+            stack: 'usage',
+          })),
+        },
+        options: {
+          animation: false,
+          responsive: false,
+          maintainAspectRatio: false,
+          events: [],
+          plugins: {
+            fieldEventLines: { events: state.report.visibleEvents },
+            legend: { display: false },
+            tooltip: { enabled: false },
+          },
+          scales: {
+            x: {
+              ticks: { maxRotation: 0, autoSkip: true },
+            },
+            y: {
+              stacked: true,
+              title: {
+                display: true,
+                text: '使用率',
+              },
+              ticks: {
+                callback: value => `${value}%`,
+              },
+            },
+          },
+        },
+      });
+
+      exportChart.update('none');
+      renderReportMajorLegend(ctx, state.report.decks, REPORT_LEGEND_TOP);
+      ctx.drawImage(chartCanvas, 0, REPORT_CHART_TOP, REPORT_IMAGE_WIDTH, REPORT_CHART_HEIGHT);
+      renderReportEventLabels(ctx, exportChart, state.report.visibleEvents, REPORT_EVENT_TOP, REPORT_IMAGE_WIDTH);
+      exportChart.destroy();
+      return out;
+    }
+
+    function renderReportMajorLegend(ctx, decks, yOffset) {
+      const majorDecks = decks.filter(deck => deck.isMajor);
+      if (!majorDecks.length) return;
+
+      let x = 10;
+      let y = yOffset;
+      const itemGap = 16;
+      const rowHeight = 18;
+      ctx.font = '12px system-ui, sans-serif';
+      ctx.textBaseline = 'middle';
+
+      majorDecks.forEach(deck => {
+        const textWidth = Math.min(200, ctx.measureText(deck.name).width);
+        const itemWidth = 28 + textWidth;
+        if (x + itemWidth > REPORT_IMAGE_WIDTH - 10) {
+          x = 10;
+          y += rowHeight;
+        }
+
+        ctx.fillStyle = deck.color;
+        ctx.fillRect(x, y + 4, 18, 8);
+        ctx.strokeStyle = 'rgba(0, 0, 0, 0.12)';
+        ctx.strokeRect(x, y + 4, 18, 8);
+        ctx.fillStyle = '#4a5568';
+        ctx.fillText(deck.name, x + 24, y + 8, 200);
+        x += itemWidth + itemGap;
+      });
+    }
+
+    function renderReportEventLabels(ctx, chart, events, yOffset, rowWidth) {
+      const xScale = chart.scales.x;
+      const lanes = [];
+      const labelGap = 8;
+      const laneHeight = 20;
+      const rowPadding = 8;
+      const font = '12px system-ui, sans-serif';
+      ctx.font = font;
+
+      const labels = events.map(event => {
+        const text = `${getEventMark(String(event.type || '').toLowerCase())}${event.label}`;
+        return {
+          ...event,
+          x: xScale.getPixelForValue(event.index),
+          text,
+          width: Math.min(140, Math.max(34, ctx.measureText(text).width + 18)),
+        };
+      }).filter(event => Number.isFinite(event.x)).sort((a, b) => a.x - b.x);
+
+      labels.forEach(event => {
+        const type = String(event.type || '').toLowerCase();
+        const colors = getEventLabelColors(type);
+        const displayX = Math.min(Math.max(event.x, event.width / 2 + rowPadding), rowWidth - event.width / 2 - rowPadding);
+        const left = displayX - event.width / 2;
+        const right = displayX + event.width / 2;
+        let lane = lanes.findIndex(end => left > end + labelGap);
+        if (lane === -1) lane = lanes.length;
+        lanes[lane] = right;
+
+        const x = displayX - event.width / 2;
+        const y = yOffset + lane * laneHeight;
+        const height = 16;
+
+        drawRoundedRect(ctx, x, y, event.width, height, 4, colors.background, colors.border);
+        ctx.fillStyle = colors.text;
+        ctx.font = font;
+        ctx.textBaseline = 'middle';
+        ctx.fillText(event.text, x + 6, y + height / 2, event.width - 12);
+      });
+    }
+
+    function getEventLabelColors(type) {
+      if (type === 'added') return { background: '#e6fffa', text: '#1f6f5d', border: '#81e6d9' };
+      if (type === 'removed') return { background: '#fffaf0', text: '#9c4221', border: '#f6ad55' };
+      if (type === 'adjusted') return { background: '#ebf8ff', text: '#2c5282', border: '#90cdf4' };
+      return { background: '#f7fafc', text: '#4a5568', border: '#cbd5e0' };
+    }
+
+    function drawRoundedRect(ctx, x, y, width, height, radius, fill, stroke) {
+      ctx.beginPath();
+      ctx.moveTo(x + radius, y);
+      ctx.lineTo(x + width - radius, y);
+      ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+      ctx.lineTo(x + width, y + height - radius);
+      ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+      ctx.lineTo(x + radius, y + height);
+      ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+      ctx.lineTo(x, y + radius);
+      ctx.quadraticCurveTo(x, y, x + radius, y);
+      ctx.closePath();
+      ctx.fillStyle = fill;
+      ctx.fill();
+      ctx.strokeStyle = stroke;
+      ctx.stroke();
+    }
+
+    function render() {
+      const [start, end] = getSelectedFields();
+      updateMeta();
+
+      if (!start || !end) {
+        clearChart('「ここから」、「ここまで」を選択するとグラフが表示されます');
+        return;
+      }
+      const selectedFieldCount = getSelectedFieldCount(start, end);
+      if (selectedFieldCount == null) {
+        clearChart('「ここから」は、「ここまで」以前の環境を選択してください');
+        return;
+      }
+      if (selectedFieldCount > 3) {
+        clearChart('3環境までしか連続したグラフを作れません');
+        return;
+      }
+      const { startIndex, endIndex } = getRangeIndexes(start, end);
+      if (startIndex === -1 || endIndex === -1) {
+        clearChart('選択した環境の日付に対応する使用率データがありません');
+        return;
+      }
+      if (startIndex > endIndex) {
+        clearChart('「ここから」は、「ここまで」以前の環境を選択してください');
+        return;
+      }
+
+      const labels = state.dates.slice(startIndex, endIndex + 1);
+      const deckEntries = Object.entries(state.decks)
+        .map(([name, values]) => ({
+          name,
+          values: values.slice(startIndex, endIndex + 1).map(value => value ?? 0),
+        }))
+        .filter(deck => deck.values.some(value => value > 0))
+        .map(deck => ({
+          ...deck,
+          isMajor: isMajorDeck(deck),
+          max: Math.max(...deck.values),
+        }))
+        .sort((a, b) => {
+          if (a.isMajor !== b.isMajor) return a.isMajor ? -1 : 1;
+          return b.max - a.max;
+        })
+        .map((deck, index) => ({
+          ...deck,
+          color: getColor(index, 0.9),
+          backgroundColor: getColor(index, deck.isMajor ? 0.28 : 0.1),
+        }));
+
+      if (!deckEntries.length) {
+        clearChart('表示できるデッキ使用率データがありません');
+        return;
+      }
+
+      const visibleEvents = getVisibleEvents(labels);
+      if (state.chart) {
+        detachBandTooltip();
+        state.chart.destroy();
+      }
+      closeImagePreview();
+      chartPlaceholder.classList.add('hidden');
+      state.chart = new Chart(document.getElementById('chart'), {
+        type: 'line',
+        data: {
+          labels,
+          datasets: deckEntries.map((deck, index) => ({
+            label: deck.name,
+            data: deck.values,
+            borderColor: deck.color,
+            backgroundColor: deck.backgroundColor,
+            borderWidth: deck.isMajor ? 1.8 : 1,
+            pointRadius: 0,
+            pointHoverRadius: 3,
+            tension: 0.2,
+            fill: true,
+            stack: 'usage',
+          })),
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          events: [],
+          plugins: {
+            fieldEventLines: { events: visibleEvents },
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: context => `${context.dataset.label}: ${formatPercent(context.parsed.y)}`,
+              },
+            },
+          },
+          scales: {
+            x: {
+              ticks: { maxRotation: 0, autoSkip: true },
+            },
+            y: {
+              stacked: true,
+              title: {
+                display: true,
+                text: '使用率',
+              },
+              ticks: {
+                callback: value => `${value}%`,
+              },
+            },
+          },
+        },
+      });
+
+      const majorCount = deckEntries.filter(deck => deck.isMajor).length;
+      meta.textContent = `期間: ${labels[0]} ~ ${labels[labels.length - 1]} / デッキ数: ${deckEntries.length} / 主要デッキ数: ${majorCount}`;
+      state.report = { labels, decks: deckEntries, visibleEvents };
+      renderMajorLegend(deckEntries);
+      updateExportButton(true);
+      attachBandTooltip();
+      renderEventLabels(visibleEvents);
+    }
+
+    function setupFields() {
+      state.fields = uniqueByDate(state.events
+        .map((event, index) => ({ ...event, index }))
+        .filter(event => event.type === 'added' && isTargetFormat(event))
+        .sort((a, b) => a.date.localeCompare(b.date) || a.index - b.index));
+      setupFieldOptions();
+    }
+
+    async function loadCsv() {
+      const csv = state.sourceCsvs[state.fmt] || await fetch(CSV_PATHS[state.fmt]).then(response => response.text());
+      state.sourceCsvs[state.fmt] = csv;
+      const parsed = parseCsv(csv);
+      state.dates = parsed.dates;
+      state.decks = parsed.decks;
+      render();
+    }
+
+    async function init() {
+      const [eventsJson] = await Promise.all([
+        fetch('./events.json').then(response => response.json()),
+      ]);
+      state.events = eventsJson.events || [];
+      setupFields();
+      await loadCsv();
+    }
+
+    document.querySelectorAll('input[name="fmt"]').forEach(radio => {
+      radio.addEventListener('change', async event => {
+        state.fmt = event.target.value;
+        setupFields();
+        await loadCsv();
+      });
+    });
+    fieldSelects.forEach(select => select.addEventListener('change', render));
+    exportChartButton.addEventListener('click', showChartImage);
+    closeImagePreviewButton.addEventListener('click', closeImagePreview);
+    updateExportButton(false);
+    init();
+  </script>
 </body>
 </html>

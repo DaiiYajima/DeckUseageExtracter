@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>解析メニュー</title>
+  <title>デッキ使用率解析</title>
   <style>
     * { box-sizing: border-box; }
     body {
@@ -31,28 +31,28 @@
     .top-actions {
       display: flex;
       justify-content: flex-end;
+      gap: 6px;
+      align-items: center;
       margin: -12px 0 18px;
+      color: #718096;
+      font-size: 11px;
     }
     .source-download {
-      border: 1px solid #2563eb;
-      border-radius: 6px;
-      background: #2563eb;
-      color: #fff;
-      padding: 8px 12px;
+      border: 0;
+      background: transparent;
+      color: #4a5568;
+      padding: 1px 2px;
       font: inherit;
-      font-size: 13px;
+      text-decoration: underline;
       cursor: pointer;
     }
     .source-download:hover,
     .source-download:focus-visible {
-      background: #1d4ed8;
-      border-color: #1d4ed8;
+      color: #2d3748;
       outline: none;
     }
     .source-download:disabled {
-      border-color: #cbd5e1;
-      background: #e2e8f0;
-      color: #64748b;
+      color: #a0aec0;
       cursor: not-allowed;
     }
     .analysis-list {
@@ -90,13 +90,35 @@
       font-size: 13px;
       line-height: 1.6;
     }
+    .notes {
+      margin-top: 28px;
+      padding-top: 22px;
+      border-top: 1px solid #d6dde8;
+    }
+    .notes h2 {
+      margin: 0 0 10px;
+      font-size: 20px;
+      line-height: 1.3;
+    }
+    .notes-body {
+      color: #4b5563;
+      font-size: 14px;
+      line-height: 1.8;
+    }
+    .notes-body p {
+      margin: 0 0 10px;
+    }
+    .notes-body p:last-child {
+      margin-bottom: 0;
+    }
   </style>
 </head>
 <body>
   <main>
-    <h1>解析メニュー</h1>
-    <p class="lead">確認したい解析を選択してください。</p>
+    <h1>デュエプレ デッキ使用率解析</h1>
+    <p class="lead">やってみたい解析を選択してください。</p>
     <div class="top-actions">
+      <span>参考:</span>
       <button class="source-download" type="button" id="exportSources">元データDL</button>
     </div>
     <nav class="analysis-list" aria-label="解析メニュー">
@@ -106,9 +128,15 @@
       </a>
       <a class="analysis-link" href="./field-transition.html">
         <span class="analysis-title">環境内の使用率推移</span>
-        <span class="analysis-description">環境全体での使用率推移を確認する解析ページです。</span>
+        <span class="analysis-description">環境を選択して、その環境内の使用率推移を確認します。</span>
       </a>
     </nav>
+    <section class="notes" aria-labelledby="notesTitle">
+      <div class="notes-body">
+        <li>デッキ名および使用率は、<a href="https://beans-duelplays.com/" target="_blank" rel="noopener noreferrer">BEANS様</a>の公開データに基づいて集計されています。</li>
+        <li>データがある期間は2022/4/1 ~ 2025/2/28（BEANS様によって対戦数テーブルが公開されている期間）です。</li>
+      </div>
+    </section>
   </main>
   <script>
     const SOURCE_FILES = [
