@@ -3,96 +3,223 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>デッキ使用率推移</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+  <title>解析メニュー</title>
   <style>
     * { box-sizing: border-box; }
-    body { font-family: system-ui, sans-serif; margin: 18px; overflow-x: hidden; }
-    .controls { display:flex; gap:10px; flex-wrap: wrap; align-items: end; margin: 0 0 12px 10px; }
-    .field { display:flex; flex-direction: column; gap:4px; min-width: 168px; }
-    select { min-width: 168px; max-width: 100%; }
-    .report-bar { display:flex; gap:12px; align-items:center; flex-wrap: wrap; margin: 8px 0; }
-    .report-actions { display:flex; gap:8px; flex-wrap: wrap; }
-    .report-actions button { border:1px solid #2b6cb0; border-radius:4px; background:#2b6cb0; color:#fff; padding:5px 9px; font: inherit; font-size: 13px; cursor:pointer; }
-    .report-actions button:disabled { border-color:#cbd5e0; color:#a0aec0; background:#f7fafc; cursor:not-allowed; }
-    .report-actions button:not(:disabled):hover { background:#2c5282; border-color:#2c5282; }
-    .image-preview { display:none; margin: 10px 0 14px; padding: 10px; border: 1px solid #2d3748; border-radius: 6px; background: #1a202c; }
-    .image-preview.visible { display:block; }
-    .image-preview-header { display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom: 8px; }
-    .image-preview-title { margin:0; color:#edf2f7; font-size: 13px; font-weight: 700; }
-    .image-preview-close { border:1px solid #4a5568; border-radius:4px; background:#2d3748; color:#edf2f7; padding:4px 8px; font: inherit; font-size: 12px; cursor:pointer; }
-    .image-preview-close:hover { background:#4a5568; }
-    .image-preview img { display:block; width:100%; max-width:100%; height:auto; border:1px solid #4a5568; background:#fff; touch-action: manipulation; -webkit-user-select: auto; user-select: auto; }
-    .reference-downloads { display:flex; justify-content:flex-end; gap:6px; align-items:center; margin: -8px 18px 8px 0; color:#718096; font-size: 11px; }
-    .reference-downloads button { border:0; background:transparent; color:#4a5568; padding:1px 2px; font: inherit; text-decoration: underline; cursor:pointer; }
-    .reference-downloads button:disabled { color:#a0aec0; cursor:not-allowed; }
-    .chart-wrap { position: relative; height: 360px; }
-    .event-row { position: relative; min-height: 34px; margin-top: 4px; }
-    .event-label { position:absolute; transform:translateX(-50%); max-width: 86px; overflow:hidden; text-overflow:ellipsis; font-size: 10px; line-height: 1.2; padding:2px 4px; border-radius: 4px; border:1px solid; white-space: nowrap; cursor: default; }
-    .event-label.added { background:#e6fffa; color:#1f6f5d; border-color:#81e6d9; }
-    .event-label.removed { background:#fffaf0; color:#9c4221; border-color:#f6ad55; }
-    .event-label.adjusted { background:#ebf8ff; color:#2c5282; border-color:#90cdf4; }
-    .event-tooltip { position: fixed; z-index: 20; max-width: min(360px, calc(100vw - 20px)); padding: 6px 8px; border-radius: 4px; background: #1a202c; color: #fff; font-size: 12px; line-height: 1.45; white-space: pre-line; opacity: 0; pointer-events: none; transform: translateY(2px); transition: opacity 0.04s ease, transform 0.04s ease; }
-    .event-tooltip.visible { opacity: 1; transform: translateY(0); }
-    .description { margin: 0 0 14px; padding-left: 1.2em; color: #444; font-size: 13px; line-height: 1.6; }
-    .meta { color:#555; font-size: 13px; }
-    @media (max-width: 640px) {
-      body { margin: 10px; }
-      h1 { font-size: 20px; line-height: 1.25; }
-      .description { padding-left: 1em; font-size: 12px; }
-      .reference-downloads { justify-content:flex-start; margin: 0 0 10px; }
-      .controls { display:grid; grid-template-columns: 1fr; gap:8px; margin-left: 0; }
-      .field, select { width: 100%; min-width: 0; }
-      select, button, input { font-size: 16px; }
-      .report-bar { align-items: stretch; }
-      .report-actions, .report-actions button { width: 100%; }
-      .report-actions button { min-height: 40px; }
-      .chart-wrap { height: 320px; }
-      .image-preview { padding: 8px; }
+    body {
+      margin: 0;
+      font-family: system-ui, sans-serif;
+      color: #1f2937;
+      background: #f8fafc;
+    }
+    main {
+      width: min(880px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 48px 0;
+    }
+    h1 {
+      margin: 0 0 10px;
+      font-size: clamp(28px, 5vw, 42px);
+      line-height: 1.15;
+    }
+    .lead {
+      margin: 0 0 28px;
+      color: #4b5563;
+      font-size: 15px;
+      line-height: 1.7;
+    }
+    .top-actions {
+      display: flex;
+      justify-content: flex-end;
+      margin: -12px 0 18px;
+    }
+    .source-download {
+      border: 1px solid #2563eb;
+      border-radius: 6px;
+      background: #2563eb;
+      color: #fff;
+      padding: 8px 12px;
+      font: inherit;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .source-download:hover,
+    .source-download:focus-visible {
+      background: #1d4ed8;
+      border-color: #1d4ed8;
+      outline: none;
+    }
+    .source-download:disabled {
+      border-color: #cbd5e1;
+      background: #e2e8f0;
+      color: #64748b;
+      cursor: not-allowed;
+    }
+    .analysis-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 14px;
+    }
+    .analysis-link {
+      display: block;
+      min-height: 136px;
+      padding: 18px;
+      border: 1px solid #d6dde8;
+      border-radius: 8px;
+      color: inherit;
+      text-decoration: none;
+      background: #fff;
+      transition: border-color 0.12s ease, box-shadow 0.12s ease, transform 0.12s ease;
+    }
+    .analysis-link:hover,
+    .analysis-link:focus-visible {
+      border-color: #2563eb;
+      box-shadow: 0 10px 28px rgba(37, 99, 235, 0.12);
+      outline: none;
+      transform: translateY(-1px);
+    }
+    .analysis-title {
+      display: block;
+      margin-bottom: 10px;
+      font-size: 18px;
+      font-weight: 700;
+    }
+    .analysis-description {
+      display: block;
+      color: #64748b;
+      font-size: 13px;
+      line-height: 1.6;
     }
   </style>
 </head>
 <body>
-  <h1>デュエプレ デッキ使用率推移</h1>
-  <ul class="description">
-    <li>デッキ名を選択すると、使用率推移グラフが表示されます。5デッキまで同時に選択できます。複数選択した場合、各デッキの使用率の合計がグラフに表示されます。</li>
-    <li>デッキ名および使用率は、<a href="https://beans-duelplays.com/" target="_blank" rel="noopener noreferrer">BEANS様</a>の公開データに基づいて集計されています。</li>
-    <li>最大期間は2022/4/1 ~ 2025/2/28（BEANS様によって対戦数テーブルが公開されている期間）です。</li>
-    <li>新弾直後など、デッキ名が定着していない期間は、実際にデッキが使われていても使用率0%となる場合があります。</li>
-  </ul>
-  <div class="reference-downloads">
-    <span>参考:</span>
-    <button type="button" id="exportSources">元データDL</button>
-  </div>
-  <div class="controls">
-    <div class="field">
-      <label>フォーマット</label>
-      <div>
-        <label><input type="radio" name="fmt" value="ND" checked> ND</label>
-        <label><input type="radio" name="fmt" value="AD"> AD</label>
-      </div>
+  <main>
+    <h1>解析メニュー</h1>
+    <p class="lead">確認したい解析を選択してください。</p>
+    <div class="top-actions">
+      <button class="source-download" type="button" id="exportSources">元データDL</button>
     </div>
-    <div class="field"><label>デッキ1</label><select id="deck1"></select></div>
-    <div class="field"><label>デッキ2</label><select id="deck2"></select></div>
-    <div class="field"><label>デッキ3</label><select id="deck3"></select></div>
-    <div class="field"><label>デッキ4</label><select id="deck4"></select></div>
-    <div class="field"><label>デッキ5</label><select id="deck5"></select></div>
-  </div>
-  <div class="report-bar">
-    <div class="meta" id="meta"></div>
-    <div class="report-actions" aria-label="レポート出力">
-      <button type="button" id="exportChart">画像として表示</button>
-    </div>
-  </div>
-  <div class="image-preview" id="imagePreview" aria-live="polite">
-    <div class="image-preview-header">
-      <p class="image-preview-title">画像プレビュー</p>
-      <button type="button" class="image-preview-close" id="closeImagePreview">閉じる</button>
-    </div>
-    <img id="previewImage" alt="グラフ画像プレビュー" />
-  </div>
-  <div class="chart-wrap"><canvas id="chart"></canvas></div>
-  <div class="event-row" id="eventRow"></div>
-  <script src="./app.js"></script>
+    <nav class="analysis-list" aria-label="解析メニュー">
+      <a class="analysis-link" href="./deck-transition.html">
+        <span class="analysis-title">デッキ使用率推移</span>
+        <span class="analysis-description">デッキを選択して、期間ごとの使用率推移を確認します。</span>
+      </a>
+      <a class="analysis-link" href="./field-transition.html">
+        <span class="analysis-title">環境内の使用率推移</span>
+        <span class="analysis-description">環境全体での使用率推移を確認する解析ページです。</span>
+      </a>
+    </nav>
+  </main>
+  <script>
+    const SOURCE_FILES = [
+      { name: 'usage_matrix_nd.csv', path: './usage_matrix_nd.csv' },
+      { name: 'usage_matrix_ad.csv', path: './usage_matrix_ad.csv' },
+      { name: 'events.json', path: './events.json' },
+    ];
+
+    function downloadFile(filename, content, type) {
+      const blob = content instanceof Blob ? content : new Blob([content], { type });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    function createZip(files) {
+      const encoder = new TextEncoder();
+      const localParts = [];
+      const centralParts = [];
+      let offset = 0;
+
+      files.forEach(file => {
+        const nameBytes = encoder.encode(file.name);
+        const contentBytes = encoder.encode(file.content);
+        const crc = crc32(contentBytes);
+        const localHeader = makeZipHeader(0x04034b50, nameBytes, contentBytes.length, crc);
+        const centralHeader = makeZipHeader(0x02014b50, nameBytes, contentBytes.length, crc, offset);
+
+        localParts.push(localHeader, contentBytes);
+        centralParts.push(centralHeader);
+        offset += localHeader.length + contentBytes.length;
+      });
+
+      const centralSize = centralParts.reduce((sum, part) => sum + part.length, 0);
+      const end = makeZipEnd(files.length, centralSize, offset);
+      return new Blob([...localParts, ...centralParts, end], { type: 'application/zip' });
+    }
+
+    function makeZipHeader(signature, nameBytes, size, crc, offset = 0) {
+      const isCentral = signature === 0x02014b50;
+      const buffer = new ArrayBuffer(isCentral ? 46 + nameBytes.length : 30 + nameBytes.length);
+      const view = new DataView(buffer);
+      let p = 0;
+
+      view.setUint32(p, signature, true); p += 4;
+      if (isCentral) { view.setUint16(p, 20, true); p += 2; }
+      view.setUint16(p, 20, true); p += 2;
+      view.setUint16(p, 0x0800, true); p += 2;
+      view.setUint16(p, 0, true); p += 2;
+      view.setUint16(p, 0, true); p += 2;
+      view.setUint16(p, 0, true); p += 2;
+      view.setUint32(p, crc, true); p += 4;
+      view.setUint32(p, size, true); p += 4;
+      view.setUint32(p, size, true); p += 4;
+      view.setUint16(p, nameBytes.length, true); p += 2;
+      view.setUint16(p, 0, true); p += 2;
+
+      if (isCentral) {
+        view.setUint16(p, 0, true); p += 2;
+        view.setUint16(p, 0, true); p += 2;
+        view.setUint16(p, 0, true); p += 2;
+        view.setUint32(p, 0, true); p += 4;
+        view.setUint32(p, offset, true); p += 4;
+      }
+
+      new Uint8Array(buffer).set(nameBytes, p);
+      return new Uint8Array(buffer);
+    }
+
+    function makeZipEnd(fileCount, centralSize, centralOffset) {
+      const buffer = new ArrayBuffer(22);
+      const view = new DataView(buffer);
+      view.setUint32(0, 0x06054b50, true);
+      view.setUint16(8, fileCount, true);
+      view.setUint16(10, fileCount, true);
+      view.setUint32(12, centralSize, true);
+      view.setUint32(16, centralOffset, true);
+      return new Uint8Array(buffer);
+    }
+
+    function crc32(bytes) {
+      let crc = 0xffffffff;
+      bytes.forEach(byte => {
+        crc ^= byte;
+        for (let i = 0; i < 8; i++) {
+          crc = (crc >>> 1) ^ (0xedb88320 & -(crc & 1));
+        }
+      });
+      return (crc ^ 0xffffffff) >>> 0;
+    }
+
+    async function exportSourcesZip() {
+      const button = document.getElementById('exportSources');
+      button.disabled = true;
+      try {
+        const files = await Promise.all(SOURCE_FILES.map(async source => ({
+          name: source.name,
+          content: await fetch(source.path).then(response => response.text()),
+        })));
+        downloadFile('deck_usage_source_data.zip', createZip(files), 'application/zip');
+      } finally {
+        button.disabled = false;
+      }
+    }
+
+    document.getElementById('exportSources')?.addEventListener('click', exportSourcesZip);
+  </script>
 </body>
 </html>

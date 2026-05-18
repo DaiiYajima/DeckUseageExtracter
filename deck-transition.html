@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>デッキ使用率推移</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: system-ui, sans-serif; margin: 18px; overflow-x: hidden; }
+    .controls { display:flex; gap:10px; flex-wrap: wrap; align-items: end; margin: 0 0 12px 10px; }
+    .field { display:flex; flex-direction: column; gap:4px; min-width: 168px; }
+    select { min-width: 168px; max-width: 100%; }
+    .report-bar { display:flex; gap:12px; align-items:center; flex-wrap: wrap; margin: 8px 0; }
+    .report-actions { display:flex; gap:8px; flex-wrap: wrap; }
+    .report-actions button { border:1px solid #2b6cb0; border-radius:4px; background:#2b6cb0; color:#fff; padding:5px 9px; font: inherit; font-size: 13px; cursor:pointer; }
+    .report-actions button:disabled { border-color:#cbd5e0; color:#a0aec0; background:#f7fafc; cursor:not-allowed; }
+    .report-actions button:not(:disabled):hover { background:#2c5282; border-color:#2c5282; }
+    .image-preview { display:none; margin: 10px 0 14px; padding: 10px; border: 1px solid #2d3748; border-radius: 6px; background: #1a202c; }
+    .image-preview.visible { display:block; }
+    .image-preview-header { display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom: 8px; }
+    .image-preview-title { margin:0; color:#edf2f7; font-size: 13px; font-weight: 700; }
+    .image-preview-close { border:1px solid #4a5568; border-radius:4px; background:#2d3748; color:#edf2f7; padding:4px 8px; font: inherit; font-size: 12px; cursor:pointer; }
+    .image-preview-close:hover { background:#4a5568; }
+    .image-preview img { display:block; width:100%; max-width:100%; height:auto; border:1px solid #4a5568; background:#fff; touch-action: manipulation; -webkit-user-select: auto; user-select: auto; }
+    .chart-wrap { position: relative; height: 360px; }
+    .event-row { position: relative; min-height: 34px; margin-top: 4px; }
+    .event-label { position:absolute; transform:translateX(-50%); max-width: 86px; overflow:hidden; text-overflow:ellipsis; font-size: 10px; line-height: 1.2; padding:2px 4px; border-radius: 4px; border:1px solid; white-space: nowrap; cursor: default; }
+    .event-label.added { background:#e6fffa; color:#1f6f5d; border-color:#81e6d9; }
+    .event-label.removed { background:#fffaf0; color:#9c4221; border-color:#f6ad55; }
+    .event-label.adjusted { background:#ebf8ff; color:#2c5282; border-color:#90cdf4; }
+    .event-tooltip { position: fixed; z-index: 20; max-width: min(360px, calc(100vw - 20px)); padding: 6px 8px; border-radius: 4px; background: #1a202c; color: #fff; font-size: 12px; line-height: 1.45; white-space: pre-line; opacity: 0; pointer-events: none; transform: translateY(2px); transition: opacity 0.04s ease, transform 0.04s ease; }
+    .event-tooltip.visible { opacity: 1; transform: translateY(0); }
+    .home-link { display:inline-block; margin-bottom: 12px; color:#2b6cb0; text-decoration:none; font-size: 13px; }
+    .home-link:hover, .home-link:focus-visible { text-decoration: underline; }
+    .description { margin: 0 0 14px; padding-left: 1.2em; color: #444; font-size: 13px; line-height: 1.6; }
+    .meta { color:#555; font-size: 13px; }
+    @media (max-width: 640px) {
+      body { margin: 10px; }
+      h1 { font-size: 20px; line-height: 1.25; }
+      .description { padding-left: 1em; font-size: 12px; }
+      .controls { display:grid; grid-template-columns: 1fr; gap:8px; margin-left: 0; }
+      .field, select { width: 100%; min-width: 0; }
+      select, button, input { font-size: 16px; }
+      .report-bar { align-items: stretch; }
+      .report-actions, .report-actions button { width: 100%; }
+      .report-actions button { min-height: 40px; }
+      .chart-wrap { height: 320px; }
+      .image-preview { padding: 8px; }
+    }
+  </style>
+</head>
+<body>
+  <a class="home-link" href="./index.html">解析メニューへ戻る</a>
+  <h1>デュエプレ デッキ使用率推移</h1>
+  <ul class="description">
+    <li>デッキ名を選択すると、使用率推移グラフが表示されます。5デッキまで同時に選択できます。複数選択した場合、各デッキの使用率の合計がグラフに表示されます。</li>
+    <li>デッキ名および使用率は、<a href="https://beans-duelplays.com/" target="_blank" rel="noopener noreferrer">BEANS様</a>の公開データに基づいて集計されています。</li>
+    <li>最大期間は2022/4/1 ~ 2025/2/28（BEANS様によって対戦数テーブルが公開されている期間）です。</li>
+    <li>新弾直後など、デッキ名が定着していない期間は、実際にデッキが使われていても使用率0%となる場合があります。</li>
+  </ul>
+  <div class="controls">
+    <div class="field">
+      <label>フォーマット</label>
+      <div>
+        <label><input type="radio" name="fmt" value="ND" checked> ND</label>
+        <label><input type="radio" name="fmt" value="AD"> AD</label>
+      </div>
+    </div>
+    <div class="field"><label>デッキ1</label><select id="deck1"></select></div>
+    <div class="field"><label>デッキ2</label><select id="deck2"></select></div>
+    <div class="field"><label>デッキ3</label><select id="deck3"></select></div>
+    <div class="field"><label>デッキ4</label><select id="deck4"></select></div>
+    <div class="field"><label>デッキ5</label><select id="deck5"></select></div>
+  </div>
+  <div class="report-bar">
+    <div class="meta" id="meta"></div>
+    <div class="report-actions" aria-label="レポート出力">
+      <button type="button" id="exportChart">画像として表示</button>
+    </div>
+  </div>
+  <div class="image-preview" id="imagePreview" aria-live="polite">
+    <div class="image-preview-header">
+      <p class="image-preview-title">画像プレビュー</p>
+      <button type="button" class="image-preview-close" id="closeImagePreview">閉じる</button>
+    </div>
+    <img id="previewImage" alt="グラフ画像プレビュー" />
+  </div>
+  <div class="chart-wrap"><canvas id="chart"></canvas></div>
+  <div class="event-row" id="eventRow"></div>
+  <script src="./app.js"></script>
+</body>
+</html>
